@@ -1,0 +1,100 @@
+stages:
+  make_dataset:
+    cmd: python .\src\data\make_dataset.py .\data\raw\tested.csv
+    deps:
+    - .\data\raw\tested.csv
+    - .\src\data\make_dataset.py
+    params:
+    - make_dataset.test_split
+    - make_dataset.seed
+    outs:
+    - .\data\processed\
+  train_model:
+    cmd: python .\src\models\train_model.py .\data\processed\
+    deps:
+    - .\data\processed\
+    - .\src\models\train_model.py
+    params:
+    - train_model.seed
+    - train_model.n_estimators
+    - train_model.max_depth
+    outs:
+    - .\models\
+  visualize:
+    cmd: python .\src\visualization\visualize.py .\models\model.joblib .\data\processed\
+    deps:
+    - .\data\processed\
+    - .\models\model.joblib
+    - .\src\visualization\visualize.py
+    outs:
+    - dvclive
+
+metrics:
+- dvclive\metrics.json
+
+plots:
+# - dvclive\plots\images\importance.png
+# - dvclive\plots\sklearn\roc\train.json:
+#     template: simple
+#     x: fpr
+#     y: tpr
+#     title: Receiver operating characteristic (ROC)
+#     x_label: False Positive Rate
+#     y_label: True Positive Rate
+# - dvclive\plots\sklearn\prc\train.json:
+#     template: simple
+#     x: recall
+#     y: precision
+#     title: Precision-Recall Curve
+#     x_label: Recall
+#     y_label: Precision
+# - dvclive\plots\sklearn\cm\train.json:
+#     template: confusion
+#     x: actual
+#     y: predicted
+#     title: Confusion Matrix
+#     x_label: True Label
+#     y_label: Predicted Label
+# - dvclive\plots\sklearn\roc\test.json:
+#     template: simple
+#     x: fpr
+#     y: tpr
+#     title: Receiver operating characteristic (ROC)
+#     x_label: False Positive Rate
+#     y_label: True Positive Rate
+# - dvclive\plots\sklearn\prc\test.json:
+#     template: simple
+#     x: recall
+#     y: precision
+#     title: Precision-Recall Curve
+#     x_label: Recall
+#     y_label: Precision
+# - dvclive\plots\sklearn\cm\test.json:
+#     template: confusion
+#     x: actual
+#     y: predicted
+#     title: Confusion Matrix
+#     x_label: True Label
+#     y_label: Predicted Label
+  - ROC:
+      template: simple
+      x: fpr
+      y:
+        dvclive\plots\sklearn\roc\train.json: tpr
+        dvclive\plots\sklearn\roc\test.json: tpr
+  - Confusion-Matrix:
+      template: confusion
+      x: actual
+      y:
+        dvclive\plots\sklearn\cm\train.json: predicted
+        dvclive\plots\sklearn\cm\test.json: predicted
+  - Precision-Recall:
+      template: simple
+      x: recall
+      y:
+        dvclive\plots\sklearn\prc\train.json: precision
+        dvclive\plots\sklearn\prc\test.json: precision
+
+
+
+
